@@ -27,6 +27,8 @@ public class GameLogic : MonoBehaviour {
 
     public GameObject[] gridPlates;
 
+    private List<int> Available = new List<int>();
+
     // Use this for initialization
     void Start() {
         AIFace.text = ":)";
@@ -49,10 +51,12 @@ public class GameLogic : MonoBehaviour {
 
     }
     public void initBoard() {
+        Available.Clear();
         //Initialize our board array to be full of 'empty' 0s
         boardRepresentation = new int[9];
         for (int i = 0; i < 9; i++) {
             boardRepresentation[i] = 0;
+            Available.Add(i);
             gridPlates[i].SetActive(true);
             gridPlates[i].GetComponent<MeshRenderer>().enabled = false;
 
@@ -65,6 +69,15 @@ public class GameLogic : MonoBehaviour {
             PlayerPieces[i].GetComponent<PlayerPiece>().hasBeenPlayed = false;
             
         }
+    }    
+
+    IEnumerator AIPlay(GameObject obj, Vector3 iPos, Vector3 fPos)
+    {
+        iTween.MoveTo(obj, obj.transform.position + Vector3.up * 0.3f, 1.0f);
+        yield return new WaitForSeconds(1.2f);
+        iTween.MoveTo(obj, iPos, 1.0f);
+        yield return new WaitForSeconds(1.2f);
+        iTween.MoveTo(obj, fPos, 1.0f);
     }
 
     public void AIMove() {
@@ -73,19 +86,37 @@ public class GameLogic : MonoBehaviour {
         //Place a piece there
         //Check for Victory
         //Switch it to the player's turn.
-        if (playerTurn == false && gameEnded == false) {
+        if (playerTurn == false && gameEnded == false && Available.Count > 0)
+        {
+            int movePosition = Available[Random.Range(0, Available.Count)];
 
-            for (int i = 0; i > -1; i++) {
-                int movePosition = Random.Range(0, 9); //Generate a random movement position
-                if (boardRepresentation[movePosition] == 0) { //See if that slot is open
-                    boardRepresentation[movePosition] = 2; //If it's open, set it to our AI move
+            boardRepresentation[movePosition] = 2; 
+            Available.Remove(movePosition);
+            //AIPieces[AIMoveCount].transform.position = new Vector3(gridPlates[movePosition].transform.position.x, gridPlates[movePosition].transform.position.y + 0.3f, gridPlates[movePosition].transform.position.z);
+            AIMoveCount++;
 
-                    AIPieces[AIMoveCount].transform.position = new Vector3(gridPlates[movePosition].transform.position.x, gridPlates[movePosition].transform.position.y + 0.3f, gridPlates[movePosition].transform.position.z);
-                    AIMoveCount++;
+            Vector3 ipos = new Vector3(gridPlates[movePosition].transform.position.x, gridPlates[movePosition].transform.position.y + 0.3f, gridPlates[movePosition].transform.position.z);
+            Vector3 fpos = new Vector3(gridPlates[movePosition].transform.position.x, gridPlates[movePosition].transform.position.y, gridPlates[movePosition].transform.position.z);
+            StartCoroutine(AIPlay(AIPieces[AIMoveCount], ipos, fpos));
 
-                    i = -5; //Escape the for loop
-                }
-            }
+            //iTween.MoveTo(AIPieces[AIMoveCount], AIPieces[AIMoveCount].transform.position + Vector3.up * 0.3f, 1.0f);
+            //iTween.MoveTo(AIPieces[AIMoveCount], new Vector3(gridPlates[movePosition].transform.position.x, gridPlates[movePosition].transform.position.y, gridPlates[movePosition].transform.position.z), 1.0f);
+
+            //Available
+            //for (int i = 0; i > -1; i++)
+            //{
+            //    int movePosition = Random.Range(0, 9); //Generate a random movement position
+
+            //    if (boardRepresentation[movePosition] == 0)
+            //    { //See if that slot is open
+            //        boardRepresentation[movePosition] = 2; //If it's open, set it to our AI move
+            //        Available.Remove(movePosition);
+            //        AIPieces[AIMoveCount].transform.position = new Vector3(gridPlates[movePosition].transform.position.x, gridPlates[movePosition].transform.position.y + 0.3f, gridPlates[movePosition].transform.position.z);
+            //        AIMoveCount++;
+
+            //        i = -5; //Escape the for loop
+            //    }
+            //}
 
 
             Invoke("checkForVictory", 1);
@@ -132,7 +163,7 @@ public class GameLogic : MonoBehaviour {
         for(int i =0; i <9;i++) {
             if (selectedPlate == gridPlates[i]) {
                 boardRepresentation[i] = 1;
-                
+                Available.Remove(i);
             }
             //Debug.Log(boardRepresentation[i]);
         }

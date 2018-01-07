@@ -5,6 +5,9 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Tic-Tac-Toe.unity
     guid: 91a54af281c20c24291492aaa0c465a5
+  - enabled: 1
+    path: Assets/Scenes/Tic-Tac-Toe_Opt.unity
+    guid: 36e69a4d0aaee5d4a969805ce581bcf1
